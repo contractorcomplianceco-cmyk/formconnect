@@ -138,7 +138,7 @@ a:hover{color:var(--accent-hover);}
       </div>
       <div class="fc-search" style="flex:1;max-width:430px;margin-left:auto;position:relative;display:flex;align-items:center;">
         <svg style="position:absolute;left:12px;pointer-events:none;color:var(--text-subtle);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
-        <input placeholder="Search forms, submissions, systems…" style="width:100%;height:38px;padding:0 12px 0 36px;border:1px solid var(--border-default);border-radius:10px;background:var(--surface-sunken);font-size:13px;outline:none;" style-focus="border-color:var(--accent);background:var(--surface-card);box-shadow:0 0 0 3px var(--focus-ring);" />
+        <input placeholder="Search forms, submissions, systems…" style="width:100%;height:38px;padding:0 46px 0 36px;border:1px solid var(--border-default);border-radius:10px;background:var(--surface-sunken);font-size:13px;outline:none;" style-focus="border-color:var(--accent);background:var(--surface-card);box-shadow:0 0 0 3px var(--focus-ring);" />
         <kbd style="position:absolute;right:10px;font-size:10px;color:var(--text-subtle);border:1px solid var(--border-default);border-radius:5px;padding:2px 6px;font-family:var(--font-mono);background:var(--surface-card);">⌘K</kbd>
       </div>
       <div class="fc-statuspill" style="display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:var(--surface-card);border:1px solid var(--border-default);color:var(--text-body);font-size:12.5px;font-weight:600;white-space:nowrap;box-shadow:var(--shadow-sm);">
@@ -547,7 +547,9 @@ a:hover{color:var(--accent-hover);}
                   </div>
                 </div>
               </sc-if>
-              <sc-if value="{{ routePreview }}" hint-placeholder-val="{{ true }}"></sc-if>
+              <sc-if value="{{ noRoutePreview }}" hint-placeholder-val="{{ true }}">
+                <div style="padding:22px 10px;text-align:center;color:var(--text-muted);font-size:12.5px;line-height:1.5;">Select a form or preview an access code above to see what the client sees.</div>
+              </sc-if>
               <sc-if value="{{ genIdle }}" hint-placeholder-val="{{ false }}"></sc-if>
             </div>
           </div>
@@ -1167,7 +1169,7 @@ class Component extends DCLogic {
   runAi=()=>{ if(this.state.aiStatus==='thinking') return; (this._steps||[]).forEach(clearTimeout); this.setState({aiStatus:'thinking',aiStep:0,aiResult:null}); this._steps=[]; const steps=4; for(let i=1;i<=steps;i++){ this._steps.push(setTimeout(()=>this.setState({aiStep:i}), i*620)); } this._steps.push(setTimeout(()=>{ this.setState({aiStatus:'done', aiResult:this.buildAiResult(this.state.ai)}); this.logAudit('Generated draft outline for','“'+(this.state.ai.goal? this.state.ai.goal.slice(0,42):'Untitled form')+'”','ai'); }, steps*620+300)); };
   loadExample=(e)=>{ const n=e.currentTarget.dataset.ex; const ex=this.examples()[n]; this.setState({ai:ex.input, aiStatus:'done', aiResult:ex.result, aiStep:4}); };
   resetAi=()=>this.setState({aiStatus:'idle',aiResult:null,aiStep:0});
-  sendToReview=()=>{ this.setState(s=>({approvals:[{id:'ap'+Date.now(),title:'Publish AI-drafted form to Builder',detail:(s.aiResult?s.aiResult.title:'Draft form')+' → '+s.ai.destination,requestedBy:'Rose OS (draft)',destination:s.ai.destination,risk:'Medium',status:'Pending'},...s.approvals]})); this.logAudit('Sent AI draft to review:','“'+(this.state.aiResult?this.state.aiResult.title:'Draft')+'”','ai'); this.toast('Draft sent to Governance review — no records written','info'); };
+  sendToReview=()=>{ this.setState(s=>({approvals:[{id:'ap'+Date.now(),title:'Publish AI-drafted form to Builder',detail:(s.aiResult?s.aiResult.title:'Draft form')+' → '+s.ai.destination,requestedBy:'Rose OS (draft)',destination:s.ai.destination,risk:'Medium',status:'Pending',kind:'ai-draft',draftName:(s.aiResult?s.aiResult.title:'Untitled AI Draft'),draftSystem:s.ai.target},...s.approvals]})); this.logAudit('Sent AI draft to review:','“'+(this.state.aiResult?this.state.aiResult.title:'Draft')+'”','ai'); this.toast('Draft sent to Governance review — no records written','info'); };
 
   buildAiResult(f){ const goal=(f.goal||'').trim(); const title=goal? this.titleCase(goal.replace(/\.$/,'')) : (f.stage+' — '+f.client+' Intake');
     return { title: title.length>52? title.slice(0,52)+'…':title, target:f.target, destination:f.destination, client:f.client, stage:f.stage,
@@ -1219,7 +1221,7 @@ class Component extends DCLogic {
 
   // ---------- governance ----------
   setGovTabEvt=(e)=>this.setState({govTab:e.currentTarget.dataset.tab});
-  approvalActEvt=(e)=>{ const id=e.currentTarget.dataset.id, act=e.currentTarget.dataset.act; const ap=this.state.approvals.find(x=>x.id===id); this.setState(s=>({approvals:s.approvals.map(x=>x.id===id?{...x,status:act==='approve'?'Approved':'Rejected'}:x)})); if(ap){ this.logAudit(act==='approve'?'Approved sensitive write — ':'Rejected request — ', ap.title,'approve'); this.toast(act==='approve'?'Approved — write released to '+ap.destination:'Request rejected', act==='approve'?'ok':'warn'); } };
+  approvalActEvt=(e)=>{ const id=e.currentTarget.dataset.id, act=e.currentTarget.dataset.act; const ap=this.state.approvals.find(x=>x.id===id); const isAiApprove=!!(act==='approve' && ap && ap.kind==='ai-draft'); const nf=isAiApprove?{ id:'f'+Date.now(), name:ap.draftName||'Untitled AI Draft', system:ap.draftSystem||'—', owner:'Unassigned', status:'Approved', version:'v0.1', destination:ap.destination, updated:'Just now', health:'Watch', type:'Intake', risk:ap.risk||'Medium' }:null; this.setState(s=>({ approvals:s.approvals.map(x=>x.id===id?{...x,status:act==='approve'?'Approved':'Rejected'}:x), forms:isAiApprove?[nf,...s.forms]:s.forms })); if(ap){ if(isAiApprove) this.logAudit('Added AI-drafted form to Registry:','“'+nf.name+'”','approve'); this.logAudit(act==='approve'?'Approved sensitive write — ':'Rejected request — ', ap.title,'approve'); this.toast(act==='approve'?(isAiApprove?('Approved — “'+nf.name+'” added to Registry, Builder & Routing'):('Approved — write released to '+ap.destination)):'Request rejected', act==='approve'?'ok':'warn'); } };
 
   systemsAll=['SalesCoreOS','ApplicationsOS','ExamManagerOS','BoardCommsOS','EmailIntelligenceOS','SiteIntelligenceOS','AuditEngine','ComplianceCoreOS','LedgerOS','SaaSManagerOS','QualifierManagerOS','ComplianceConnect','Discovery / Intake','Zoho CRM','Zoho Forms','Supabase','Command Center','Company Brain'];
   findQ(b,id){ for(const s of b.sections){ const q=s.questions.find(x=>x.id===id); if(q) return q; } return null; }
@@ -1403,7 +1405,7 @@ class Component extends DCLogic {
       useCaseOptions:['New client onboarding','Annual renewal','Prospect exposure review','Qualifier vetting','Incident reporting','SOS annual filing','Billing setup'],
       expiresOptions:['7 days','30 days','90 days','No expiry'],
       codeFilters:cfil.map(x=>({f:x,label:x,style:{...segBtn,...(x===codeFilter?segActive:{})}})), setCodeFilterEvt:this.setCodeFilterEvt,
-      codesRows, routePreview, thLc:{...thBase,textAlign:'left'} });
+      codesRows, routePreview, noRoutePreview:!rp, thLc:{...thBase,textAlign:'left'} });
 
     // ===== SUBMISSIONS =====
     const subFilter=S.subFilter||'All';
