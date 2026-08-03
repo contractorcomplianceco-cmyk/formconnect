@@ -136,10 +136,10 @@ a:hover{color:var(--accent-hover);}
         <div style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-subtle);font-weight:700;">{{ pageEyebrow }}</div>
         <div style="font-family:var(--font-display);font-weight:800;font-size:19px;color:var(--text-strong);letter-spacing:-0.01em;line-height:1.15;">{{ pageTitle }}</div>
       </div>
-      <div class="fc-search" style="flex:1;max-width:430px;margin-left:auto;position:relative;display:flex;align-items:center;">
-        <svg style="position:absolute;left:12px;pointer-events:none;color:var(--text-subtle);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
-        <input placeholder="Search forms, submissions, systems…" style="width:100%;height:38px;padding:0 46px 0 36px;border:1px solid var(--border-default);border-radius:10px;background:var(--surface-sunken);font-size:13px;outline:none;" style-focus="border-color:var(--accent);background:var(--surface-card);box-shadow:0 0 0 3px var(--focus-ring);" />
-        <kbd style="position:absolute;right:10px;font-size:10px;color:var(--text-subtle);border:1px solid var(--border-default);border-radius:5px;padding:2px 6px;font-family:var(--font-mono);background:var(--surface-card);">⌘K</kbd>
+      <div class="fc-search" title="Search is not available yet" onClick="{{ searchUnavailableEvt }}" style="flex:1;max-width:430px;margin-left:auto;position:relative;display:flex;align-items:center;cursor:not-allowed;">
+        <svg style="position:absolute;left:12px;pointer-events:none;color:var(--text-subtle);opacity:.7;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        <input disabled readonly tabindex="-1" placeholder="Search — coming soon (not available)" aria-disabled="true" style="width:100%;height:38px;padding:0 72px 0 36px;border:1px dashed var(--border-default);border-radius:10px;background:var(--surface-sunken);font-size:13px;outline:none;color:var(--text-muted);opacity:.85;cursor:not-allowed;" />
+        <span style="position:absolute;right:10px;font-size:10px;color:var(--text-subtle);border:1px solid var(--border-default);border-radius:5px;padding:2px 7px;font-family:var(--font-mono);background:var(--surface-card);letter-spacing:0.04em;font-weight:700;">SOON</span>
       </div>
       <div class="fc-statuspill" style="display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;background:var(--surface-card);border:1px solid var(--border-default);color:var(--text-body);font-size:12.5px;font-weight:600;white-space:nowrap;box-shadow:var(--shadow-sm);">
         <span style="width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 3px rgba(34,197,94,.16);animation:pulse 2.4s infinite;flex-shrink:0;"></span><span>FormConnect Active</span>
@@ -443,9 +443,19 @@ a:hover{color:var(--accent-hover);}
       </sc-if>
 
       <sc-if value="{{ isBuilder }}" hint-placeholder-val="{{ false }}">
-      <div style="animation:fadeUp .26s var(--ease-out);display:grid;grid-template-columns:clamp(224px,19vw,262px) minmax(360px,1fr) clamp(288px,24vw,330px);gap:16px;align-items:start;height:calc(100vh - 150px);min-height:560px;min-width:1024px;">
+      <div style="animation:fadeUp .26s var(--ease-out);display:flex;flex-direction:column;gap:12px;height:calc(100vh - 150px);min-height:560px;min-width:1024px;">
+        <div style="flex-shrink:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:12px;box-shadow:var(--shadow-sm);">
+          <div style="flex:1;min-width:240px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;">Draft → review-gated · no save / publish</div>
+            <div style="font-size:12.5px;color:var(--text-muted);line-height:1.45;">Edits stay local in this session. <b style="color:var(--text-body);">Governance → Versions</b> is the published source of truth ({{ builderView.publishedLedger }}). Nothing is persisted or published from Builder.</div>
+          </div>
+          <button onClick="{{ discardBuilderDraft }}" style="height:36px;padding:0 14px;border:1px solid var(--border-default);border-radius:8px;background:var(--surface-card);font-size:12.5px;font-weight:600;color:var(--text-body);" style-hover="border-color:var(--danger-500);color:var(--danger-500);">Discard draft changes</button>
+          <button onClick="{{ exitBuilder }}" style="height:36px;padding:0 14px;border:1px solid var(--border-default);border-radius:8px;background:var(--surface-card);font-size:12.5px;font-weight:600;color:var(--text-body);" style-hover="border-color:var(--accent);color:var(--accent);">Exit to Registry</button>
+          <button onClick="{{ submitBuilderReview }}" style="height:36px;padding:0 16px;border:none;border-radius:8px;background:var(--accent-grad);color:#fff;font-size:12.5px;font-weight:600;box-shadow:var(--shadow-sm);" style-hover="filter:brightness(1.07);box-shadow:0 6px 18px rgba(230,42,123,.26);">Submit for review →</button>
+        </div>
+      <div style="display:grid;grid-template-columns:clamp(224px,19vw,262px) minmax(360px,1fr) clamp(288px,24vw,330px);gap:16px;align-items:start;flex:1;min-height:0;">
         <div style="background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:12px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;height:100%;overflow:hidden;">
-          <div style="padding:14px 15px;border-bottom:1px solid var(--border-subtle);"><div style="font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--text-strong);line-height:1.25;">{{ builderView.name }}</div><div style="display:flex;align-items:center;gap:8px;margin-top:7px;"><span style="{{ builderView.statusStyle }}">{{ builderView.status }}</span><span style="font-family:var(--font-mono);font-size:11px;color:var(--text-subtle);">{{ builderView.version }}</span></div></div>
+          <div style="padding:14px 15px;border-bottom:1px solid var(--border-subtle);"><div style="font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--text-strong);line-height:1.25;">{{ builderView.name }}</div><div style="display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap;"><span style="{{ builderView.statusStyle }}">{{ builderView.status }}</span><span style="font-family:var(--font-mono);font-size:11px;color:var(--text-subtle);">{{ builderView.version }}</span></div><div style="margin-top:8px;font-size:11.5px;color:var(--text-muted);line-height:1.4;">{{ builderView.versionNote }}</div></div>
           <div style="flex:1;overflow-y:auto;padding:8px;">
             <sc-for list="{{ builderView.sections }}" as="sec" hint-placeholder-count="3">
               <div style="margin-bottom:6px;"><div style="display:flex;align-items:center;justify-content:space-between;padding:8px 9px 5px;"><span style="font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);font-weight:700;">{{ sec.title }}</span><span style="font-size:10.5px;color:var(--text-subtle);font-family:var(--font-mono);">{{ sec.count }}</span></div>
@@ -458,7 +468,7 @@ a:hover{color:var(--accent-hover);}
 
         <div style="height:100%;overflow-y:auto;">
           <div style="max-width:640px;margin:0 auto;background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:14px;box-shadow:var(--shadow-md);overflow:hidden;">
-            <div style="padding:22px 26px;border-bottom:1px solid var(--border-subtle);background:var(--surface-sunken);"><div style="display:flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Live preview · what the client sees</div><div style="font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--text-strong);letter-spacing:-0.01em;">{{ builderView.name }}</div></div>
+            <div style="padding:22px 26px;border-bottom:1px solid var(--border-subtle);background:var(--surface-sunken);"><div style="display:flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent);"></span>Design preview · not published</div><div style="font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--text-strong);letter-spacing:-0.01em;">{{ builderView.name }}</div><div style="margin-top:6px;font-size:12px;color:var(--text-muted);">Local working draft only — published ledger remains {{ builderView.publishedLedger }}</div></div>
             <div style="padding:24px 26px;display:flex;flex-direction:column;gap:22px;">
               <sc-for list="{{ builderView.sections }}" as="sec" hint-placeholder-count="3">
                 <div><div style="font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--text-strong);padding-bottom:10px;margin-bottom:13px;border-bottom:1px solid var(--divider);">{{ sec.title }}</div>
@@ -517,6 +527,7 @@ a:hover{color:var(--accent-hover);}
           </div>
           </sc-if>
         </div>
+      </div>
       </div>
       </sc-if>
 
@@ -605,6 +616,7 @@ a:hover{color:var(--accent-hover);}
         <div style="background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:12px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;height:100%;overflow:hidden;">
           <div style="flex:1;overflow-y:auto;padding:20px 22px;">
             <sc-if value="{{ subDetail.sensitive }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;gap:9px;padding:10px 13px;border-radius:9px;background:var(--status-warn-bg);color:var(--status-warn-text);font-size:12px;font-weight:600;margin-bottom:16px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3" stroke-linecap="round"/></svg>Sensitive write to {{ subDetail.destination }} — requires human approval before any record is created.</div></sc-if>
+            <sc-if value="{{ handoffPreviewOn }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:flex-start;gap:9px;padding:10px 13px;border-radius:9px;background:var(--surface-inset);color:var(--accent-soft-text);font-size:12.5px;font-weight:500;margin-bottom:16px;line-height:1.45;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span><b style="color:var(--accent-soft-text);">Handoff preview only.</b> Staff roster exists in Governance → Access. No owner was assigned, saved, or accepted. Real assignment wiring is not available.</span></div></sc-if>
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;">
               <div style="display:flex;gap:13px;min-width:0;"><div style="width:44px;height:44px;border-radius:11px;background:var(--navy-800);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;">{{ subDetail.ini }}</div><div style="min-width:0;"><div style="font-family:var(--font-display);font-weight:800;font-size:19px;color:var(--text-strong);letter-spacing:-0.01em;">{{ subDetail.company }}</div><div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">{{ subDetail.form }} · {{ subDetail.version }} · submitted by {{ subDetail.client }} · {{ subDetail.received }}</div></div></div>
               <div style="display:flex;gap:8px;flex-shrink:0;"><span style="{{ subDetail.riskStyle }}">{{ subDetail.risk }} risk</span><span style="{{ subDetail.statusStyle }}">{{ subDetail.status }}</span></div>
@@ -743,6 +755,7 @@ a:hover{color:var(--accent-hover);}
 
         <sc-if value="{{ gvVersions }}" hint-placeholder-val="{{ false }}">
         <div style="background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:12px;box-shadow:var(--shadow-sm);overflow:hidden;">
+          <div style="padding:14px 18px;border-bottom:1px solid var(--border-subtle);"><div style="font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--text-strong);">Published version ledger — source of truth</div><div style="font-size:12.5px;color:var(--text-muted);margin-top:4px;line-height:1.45;">Governance Versions is authoritative for published releases. Unpublished Builder working drafts do not appear here until a review-gated publish is approved.</div></div>
           <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:13px;min-width:760px;"><thead><tr style="background:var(--surface-sunken);"><th style="{{ gvThL }}">Form</th><th style="{{ gvThL }}">Version</th><th style="{{ gvThL }}">Status</th><th style="{{ gvThL }}">Changed by</th><th style="{{ gvThL }}">When</th><th style="{{ gvThL }}">Change note</th></tr></thead><tbody>
             <sc-for list="{{ versionRows }}" as="r" hint-placeholder-count="8"><tr style="border-top:1px solid var(--divider);"><td style="padding:12px 16px;font-weight:600;color:var(--text-strong);">{{ r.form }}</td><td style="padding:12px 16px;font-family:var(--font-mono);font-size:12px;color:var(--text-muted);">{{ r.version }}</td><td style="padding:12px 16px;"><span style="{{ r.statusStyle }}">{{ r.status }}</span></td><td style="padding:12px 16px;color:var(--text-body);white-space:nowrap;">{{ r.by }}</td><td style="padding:12px 16px;font-family:var(--font-mono);font-size:11.5px;color:var(--text-subtle);white-space:nowrap;">{{ r.when }}</td><td style="padding:12px 16px;color:var(--text-muted);">{{ r.note }}</td></tr></sc-for>
           </tbody></table></div>
@@ -1008,7 +1021,7 @@ class Component extends DCLogic {
     builder:null,
     codeForm:{ form:'Contractor Onboarding Intake', company:'', useCase:'New client onboarding', expires:'30 days' },
     routePreview:null,
-    selSub:'s1',
+    selSub:'s1', handoffPreview:false,
     anMode:'real', anForm:'All forms',
     mapForm:'Contractor Onboarding Intake',
     govTab:'audit',
@@ -1142,7 +1155,7 @@ class Component extends DCLogic {
   };
 
   // ---------- builder scaffold ----------
-  defaultBuilder(name){ return { status:'In Review', name:name||'Contractor Onboarding Intake', version:'v4.3 (draft)', sections:[
+  defaultBuilder(name){ return { status:'Draft', name:name||'Contractor Onboarding Intake', version:'Working draft (unpublished)', publishedLedger:'v4.2 Published', versionNote:'Based on published ledger v4.2 — not a new published version until review approves it.', sections:[
     { id:'sec1', title:'Company Information', questions:[
       { id:'q1', type:'company', label:'Legal business name', required:true, dest:'Account.Name', mapStatus:'Approved' },
       { id:'q2', type:'text', label:'Federal EIN / Tax ID', required:true, dest:'Account.EIN__c', mapStatus:'Reviewed' },
@@ -1163,6 +1176,12 @@ class Component extends DCLogic {
       { id:'q13', type:'date', label:'Signature date', required:true, dest:'Account.SignedOn__c', mapStatus:'Approved' },
     ]},
   ]}; }
+
+  // ---------- builder work-state (draft → review-gated; no fake save/publish) ----------
+  searchUnavailableEvt=(e)=>{ if(e&&e.preventDefault) e.preventDefault(); this.toast('Search is coming soon — not available yet','info'); };
+  submitBuilderReview=()=>{ const b=this.state.builder||this.defaultBuilder(); this.setState(s=>({ approvals:[{id:'ap'+Date.now(),title:'Review Builder draft (no publish yet)',detail:b.name+' · working draft based on published '+(b.publishedLedger||'v4.2')+' → Governance',requestedBy:'Alyssa',destination:'Governance review',risk:'Medium',status:'Pending',kind:'builder-draft'},...s.approvals], builder:{...b,status:'In Review'}, govTab:'approvals', screen:'governance' })); this.logAudit('Submitted Builder draft for review (no publish):','“'+b.name+'”','review'); this.toast('Submitted for review — no save or publish happened','info'); };
+  discardBuilderDraft=()=>{ const name=(this.state.builder&&this.state.builder.name)||'Contractor Onboarding Intake'; this.setState({builder:this.defaultBuilder(name), selField:'q1', builderTab:'settings'}); this.toast('Draft changes discarded — back to starting working draft','warn'); };
+  exitBuilder=()=>{ this.setState({screen:'registry'}); this.toast('Exited Builder — draft was not saved or published','info'); };
 
   // ---------- ai studio ----------
   setAiEvt=(e)=>{ const k=e.currentTarget.dataset.key, v=e.currentTarget.value; this.setState(s=>({ai:{...s.ai,[k]:v}})); };
@@ -1207,11 +1226,11 @@ class Component extends DCLogic {
   previewCodeEvt=(e)=>{ const id=e.currentTarget.dataset.id; const c=this.state.codes.find(x=>x.id===id); if(c) this.setState({routePreview:c}); };
 
   // ---------- submissions ----------
-  selectSubEvt=(e)=>this.setState({selSub:e.currentTarget.dataset.id});
-  openSubEvt=(e)=>this.setState({selSub:e.currentTarget.dataset.id, screen:'submissions'});
+  selectSubEvt=(e)=>this.setState({selSub:e.currentTarget.dataset.id, handoffPreview:false});
+  openSubEvt=(e)=>this.setState({selSub:e.currentTarget.dataset.id, screen:'submissions', handoffPreview:false});
   reviewActEvt=(e)=>{ const act=e.currentTarget.dataset.act; const id=this.state.selSub; const sub=this.state.submissions.find(x=>x.id===id); if(!sub) return;
     const map={approve:'Approved',correction:'Correction Requested',hold:'On Hold',reject:'Rejected'};
-    if(act==='assign'){ this.logAudit('Assigned owner to submission from','“'+sub.company+'”','review'); this.toast('Assigned to Alyssa'); return; }
+    if(act==='assign'){ this.setState({handoffPreview:true}); this.logAudit('Opened handoff preview for submission from','“'+sub.company+'”','review'); this.toast('Handoff preview only — no owner was assigned or saved','info'); return; }
     const ns=map[act]; this.setState(s=>({submissions:s.submissions.map(x=>x.id===id?{...x,status:ns}:x)}));
     if(act==='approve'){ this.setState(s=>({approvals:[{id:'ap'+Date.now(),title:'Write submission to '+sub.destination,detail:sub.company+' · '+sub.form+' '+sub.version,requestedBy:'Alyssa',destination:sub.destination,risk:sub.risk,status:'Pending'},...s.approvals]})); this.logAudit('Approved submission (write queued) from','“'+sub.company+'”','approve'); this.toast('Approved — sensitive write queued for Governance','info'); }
     else if(act==='correction'){ this.logAudit('Requested correction on submission from','“'+sub.company+'”','review'); this.toast('Correction requested from client','warn'); }
@@ -1325,6 +1344,7 @@ class Component extends DCLogic {
       isDashboard:screen==='dashboard', isRegistry:screen==='registry', isStudio:screen==='studio', isBuilder:screen==='builder', isRouting:screen==='routing', isSubmissions:screen==='submissions', isAnalytics:screen==='analytics', isMapping:screen==='mapping', isGovernance:screen==='governance',
       navStyles:nav, goEvt:this.goEvt, goStudio:this.goStudio, toggleTheme:this.toggleTheme,
       pageEyebrow:pt[0], pageTitle:pt[1],
+      searchUnavailableEvt:this.searchUnavailableEvt,
       healthyCount:15, reviewBadge:S.submissions.filter(s=>s.status==='New'||s.status==='In Review').length,
       subCountBadge:{marginLeft:'auto',fontSize:'11px',fontWeight:700,minWidth:'19px',height:'19px',padding:'0 5px',borderRadius:'999px',background:'linear-gradient(135deg,#F2612B,#E62A7B)',color:'#fff',display:'inline-flex',alignItems:'center',justifyContent:'center'},
       toast:S.toast, toastGlyph:this.svg(tglyph,16,2.2), toastIcon:{color:{ok:'var(--success-300)',info:'var(--rose-300)',warn:'var(--warning-500)',neutral:'#fff'}[tk],display:'flex',flexShrink:0},
@@ -1362,6 +1382,8 @@ class Component extends DCLogic {
     const pkMap=(t)=> t==='dropdown'?'select':(t==='checkbox'?'check':(t==='file'?'file':(t==='date'?'date':'input')));
     const phMap={text:'Enter text…',email:'name@company.com',phone:'(555) 000-0000',company:'Legal business name',owner:'Full name of authorized officer',license:'License type / number',payment:'Card or ACH (tokenized)',compliance:'Select compliance status'};
     const builderView={ name:b.name, version:b.version, status:b.status, statusStyle:this.pill(this.statusKind(b.status)),
+      publishedLedger:b.publishedLedger||'v4.2 Published',
+      versionNote:b.versionNote||'Based on published ledger v4.2 — not a new published version until review approves it.',
       sections:b.sections.map(sec=>({ id:sec.id, title:sec.title, count:sec.questions.length,
         questions:sec.questions.map(q=>{ const selected=sel&&q.id===sel.id; const over=S.overId===q.id&&S.dragId&&S.dragId!==q.id; const pk=pkMap(q.type);
           return { id:q.id, label:q.label, required:q.required, icon:this.typeIcon(q.type,14),
@@ -1383,6 +1405,7 @@ class Component extends DCLogic {
     const btabs=[['settings','Settings'],['logic','Logic'],['mapping','Mapping'],['validation','Validation'],['consent','Consent']].map(t=>({id:t[0],label:t[1],style:{flex:1,padding:'9px 4px',border:'none',background:'none',borderBottom:'2px solid '+(bTab===t[0]?'var(--accent)':'transparent'),color:bTab===t[0]?'var(--text-strong)':'var(--text-muted)',fontWeight:bTab===t[0]?600:500,fontSize:'12px',cursor:'pointer'}}));
     Object.assign(v,{ builderView, fld, ftOpts, addTypes, btabs, systemsAll:this.systemsAll,
       selectFieldEvt:this.selectFieldEvt, setBuilderTabEvt:this.setBuilderTabEvt, updateFieldEvt:this.updateFieldEvt, toggleFieldEvt:this.toggleFieldEvt, addFieldEvt:this.addFieldEvt, deleteField:this.deleteField, addRule:this.addRule, approveMapping:this.approveMapping,
+      submitBuilderReview:this.submitBuilderReview, discardBuilderDraft:this.discardBuilderDraft, exitBuilder:this.exitBuilder,
       dragStartEvt:this.dragStartEvt, dragOverEvt:this.dragOverEvt, dropEvt:this.dropEvt, dragEndEvt:this.dragEndEvt,
       tSettings:bTab==='settings', tLogic:bTab==='logic', tMapping:bTab==='mapping', tValidation:bTab==='validation', tConsent:bTab==='consent',
       fLabel, fLabelInline:{...fLabel,marginBottom:0}, fInput, fSel, fBlock:{marginBottom:'14px'}, fInputFlex:{...fInput,flex:1}, fInputMono:{...fInput,fontFamily:'var(--font-mono)',fontSize:'12px'}, fSelOp:{...fSel,flex:'0 0 92px'} });
@@ -1418,12 +1441,13 @@ class Component extends DCLogic {
     const sfil=['All','New','In Review','Action needed'];
     const raBase={height:'38px',padding:'0 14px',borderRadius:'8px',fontSize:'12.5px',fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:'7px',whiteSpace:'nowrap'};
     Object.assign(v,{ subList, subDetail, selectSubEvt:this.selectSubEvt, reviewActEvt:this.reviewActEvt, setSubFilterEvt:this.setSubFilterEvt,
+      handoffPreviewOn:!!S.handoffPreview,
       segWrapFull:{...segWrap,width:'100%',display:'flex'},
       subFilters:sfil.map(x=>({f:x,label:x,style:{...segBtn,flex:'1 1 0%',justifyContent:'center',...(x===subFilter?segActive:{})}})),
       reviewActions:[
         {act:'approve',label:'Approve for mapping',style:{...raBase,border:'none',background:'var(--accent-grad)',color:'#fff',boxShadow:'0 2px 10px rgba(230,42,123,.24)'}},
         {act:'correction',label:'Request correction',style:{...raBase,border:'1px solid var(--border-default)',background:'var(--surface-card)',color:'var(--text-body)'}},
-        {act:'assign',label:'Assign owner',style:{...raBase,border:'1px solid var(--border-default)',background:'var(--surface-card)',color:'var(--text-body)'}},
+        {act:'assign',label:'Handoff preview',style:{...raBase,border:'1px dashed var(--border-default)',background:'var(--surface-card)',color:'var(--text-muted)'}},
         {act:'hold',label:'Hold',style:{...raBase,border:'1px solid var(--border-default)',background:'var(--surface-card)',color:'var(--text-body)'}},
         {act:'reject',label:'Reject duplicate',style:{...raBase,border:'1px solid var(--status-bad-bg)',background:'var(--surface-card)',color:'var(--danger-600)'}},
       ] });
